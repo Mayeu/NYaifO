@@ -50,8 +50,8 @@ I would love to have feedback on this, since I am not really an OpenBSD hacker
 
 ##How to do it
 
-We are going to modify the miniroot source, which lay in
-`/usr/src/distrib/miniroot`. This contains parts of the installation scripts.
+We are going to modify the miniroot source and some file from your distrib
+(amd64 in my case), which lay in `/usr/src/distrib/{miniroot|amd64}`.
 
 ###Create an install.conf
 
@@ -65,7 +65,7 @@ System hostname = test_auto_install
 Password for root = <the_root_password>
 Do you expect to run the X Window System = no
 What timezone are you in = Europe/Zurich
-Use (W)hole disk = W
+Use (W)hole disk, use the = W
 Location of sets = http
 Server = ftp.ch.openbsd.org
 ```
@@ -87,12 +87,12 @@ non-ambiguous part (and no question mark).
 When configuring the disk, OpenBSD will only used an existing OpenBSD area if
 one exist. Because the `miniroot55.fs` will be dd(1) on the target hard drive,
 an OpenBSD area will exist, but will only have a size of ~3.5MB. So we have to
-add the `Use (W)hole disk = W` question in the answer file. Otherwise the
-system will not use the whole disk.
+add the `Use (W)hole disk, use the = W` question in the answer file. Otherwise
+the system will not use the whole disk.
 
-###Add it to the miniroot files tree
+###Add it to the files tree
 
-Now modify `/usr/src/miniroot/list`, and add this lines somewhere:
+Now modify `/usr/src/distrib/amd64/common/list`, and add this lines somewhere:
 
 ```
 # copy file in /
@@ -168,8 +168,8 @@ the image with:
 # make
 ```
 
-Take some time for you now, go make some tea, meditate. Obviously those step
-will depends of the power of your machine.
+Take some time for you now, go make some tea, meditate. Obviously the times
+taken by those steps will depends of the power of your machine.
 
 When the compilation end, you will find the `miniroot55.fs` file in your
 `/usr/src/<your_distrib>/ramdisk_cd/obj/miniroot55.fs`.
@@ -182,18 +182,18 @@ step are:
 
   * Make your image available from the network somewhere
   * Boot your server in rescue mode
-  * Download your image, and dd(1) it.
+  * Download your image, and dd(1) it. Most of the time (on linux):
+    `dd if=miniroot55.fs of=/dev/sda`
   * Reboot your server
 
 When the machine will reboot, it will boot in your miniroot images, launching
 the installation. This may take time, so do not stress and continue to drink
-you tea.
-
-After some time your server will come back
+you tea. At the end of the installation the installation script will reboot
+your machine. And you will have access to your ssh again !
 
 ###Done
 
-You are done. I do not know what you thinks, but to me as an OpenBSD noob, I
+You are done. I do not know what you think, but to me as an OpenBSD noob, I
 found this easy enough to set up :)
 
 ##Pitfalls
