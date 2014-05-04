@@ -1,14 +1,14 @@
 #Not Yet another installer for OpenBSD
 
-NYaifO use the autoinstall(8) feature of OpenBSD 5.5 to create hand & console
-free installation of OpenBSD.
+NYaifO use the autoinstall(8) feature of OpenBSD 5.5 to create an hand &
+console free installation of OpenBSD.
 
 #YES no code, but you do not need code or patch for this!
 
 ##Warning
 
 It is the first time I mess with `/usr/src`, and play with compiling my own
-image on an OpenBSD. So everything may{be| feel} hackish {and|or} dirty.
+image of OpenBSD. So everything may{be| feel} hackish {and|or} dirty.
 Constructive criticism more than welcome.
 
 I do not cover cross compiling here, and I only test this with the amd64
@@ -17,10 +17,10 @@ distrib.
 
 ##What is this?
 
-It is a guide (and in a near future, a serie of patch) to create a
-`miniroot55.fs` system, that will boot a server and automatically install
-OpenBSD 5.5 on it.  Without the need to have an accessible console on this
-server.
+It is a guide (and maybe in a near future, a series of patches) to create a
+`miniroot55.fs` system, that will be dd(1)'ed on the hard drive, and will boot
+the server to automatically install OpenBSD 5.5 on it. Without the need to have
+access to a console on the machine.
 
 The short term goal here is to have an quick & dirty way to install OpenBSD
 when you can not access the console output of the machine.
@@ -42,11 +42,12 @@ I would love to have feedback on this, since I am not really an OpenBSD hacker
 
   * Basic install of OpenBSD booting directly from your hard-drive
 
-##Enhancement to do
+##Enhancement to do (non exhaustive list)
 
   * A way to partition the disk using a definition file. Currently this use the
     default scheme, which may no fit your server need.
   * I think my make commands are suboptimal, compiling more that needed.
+  * Translate this to French
 
 ##How to do it
 
@@ -71,7 +72,7 @@ Server = ftp.ch.openbsd.org
 ```
 
 *Avoid putting the root password in clear!* You can use encrypt(1) to generate
-an encrypted version:
+an encrypted version of your password:
 
 ```
 # encrypt -b 8
@@ -85,10 +86,10 @@ If you look in autoinstall(8) you will see that the `install.conf` file is just
 non-ambiguous part (and no question mark).
 
 When configuring the disk, OpenBSD will only used an existing OpenBSD area if
-one exist. Because the `miniroot55.fs` will be dd(1) on the target hard drive,
-an OpenBSD area will exist, but will only have a size of ~3.5MB. So we have to
-add the `Use (W)hole disk, use the = W` question in the answer file. Otherwise
-the system will not use the whole disk.
+one exist by default. Because the `miniroot55.fs` will be dd(1)'ed on the
+target hard drive, an OpenBSD area will exist, but will only have a size of
+~3.5MB. So we have to add the `Use (W)hole disk, use the = W` question in the
+answer file. Otherwise the system will not use the whole disk.
 
 ###Add it to the files tree
 
@@ -96,17 +97,19 @@ Now modify `/usr/src/distrib/amd64/common/list`, and add this lines somewhere:
 
 ```
 # copy file in /
-COPY    ${CURDIR}/install.conf                  install.conf
+COPY    ${CURDIR}/../../miniroot/install.conf   install.conf
 ```
 
 This will add our `install.conf` file in the root of the miniroot image.
 
 ###Modify the installation question
 
-Since we do not boot using the netboot, the installation will not start
-automatically.  So we are going to force to start. Que `(I)nstall, (U)pgrade,
-(A)utoinstall or (S)hell?` interactive question is in
-`/usr/src/miniroot/dot.profile`. Between the lines 92 and 123.
+Since we do not boot with netboot, the installation will not start
+automatically. So we are going to force the script to start in autoinstall
+mode.
+
+The `(I)nstall, (U)pgrade, (A)utoinstall or (S)hell?` interactive question is
+in `/usr/src/miniroot/dot.profile`. Between the lines 92 and 123.
 
 ```
 ...
@@ -121,18 +124,21 @@ automatically.  So we are going to force to start. Que `(I)nstall, (U)pgrade,
 ...
 ```
 
-I have remove this whole part, and replaced it with:
+I just removed the whole part, and replaced it with:
+
 ```
-/install -a -f install.conf
+/install -a -f /install.conf
 ```
 
 So as soon as the machine will have booted, it will launch the install script
-in automatic mode (`-a`) with our answer file (`-f install.conf`).
+in autoinstall mode (`-a`) with our specific answer file (`-f install.conf`).
 
 ###Automatically reboot at the end of the installation
 
-Since we will not have any console, we will not be able to reboot the machine. In the file `/usr/src/distrib/miniroot/install.sub` you will
-find the `finish_up()` function. Go to the end (line 2167), and add the reboot(8) command.
+Since we will not have any console, we have to force the reboot of the machine
+at the end of the installation. To do this, we need to modify the file
+`/usr/src/distrib/miniroot/install.sub` where we will find the `finish_up()`
+function. Go to the end (line 2167), and add the reboot(8) command.
 
 ```
 ...
@@ -188,8 +194,8 @@ step are:
 
 When the machine will reboot, it will boot in your miniroot images, launching
 the installation. This may take time, so do not stress and continue to drink
-you tea. At the end of the installation the installation script will reboot
-your machine. And you will have access to your ssh again !
+you tea. At the end of the installation the machine will reboot, and you will
+have access to your ssh again ! (hopefully)
 
 ###Done
 
