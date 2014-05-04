@@ -3,7 +3,7 @@
 NYaifO use the autoinstall(8) feature of OpenBSD 5.5 to create an hand &
 console free installation of OpenBSD.
 
-#YES no code, but you do not need code or patch for this!
+#YES no code (yet), but you do not need code or patch for this!
 
 This README come from a [blog
 post](http://6x9.fr/posts/openbsd-install-hand-and-console-free)
