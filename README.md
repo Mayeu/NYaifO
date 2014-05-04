@@ -222,3 +222,14 @@ is far from perfect!
   * By e-mail:
     * GPG key: A016 F2D8 0472 1186 1B33 A419 22B1 0496 B00D A693
     * Or see my [webpage](http://6x9.fr/contact)
+
+##Ressources
+
+  * [YAIFO WIP](http://comments.gmane.org/gmane.os.openbsd.misc/210533)
+  * [OpenBSD 5.5 Installation Guide](http://www.openbsd.org/faq/faq4.html)
+  * [OpenBSD - Building the System from Source](http://www.openbsd.org/faq/faq5.html)
+  * [OpenBSD - Disk Setup](http://www.openbsd.org/faq/faq14.html)
+  * [Automatic OpenBSD Installation](http://people.cs.uchicago.edu/~brendan/howtos/openbsd_install/)
+  * [autoinstall(8)](http://www.openbsd.org/cgi-bin/man.cgi?query=autoinstall&sektion=8)
+  * [Custom Kernel in OpenBSD bsd.rd](https://arnor.org/OpenBSD/custombsdrd.html)
+  * [Automatic, unattended OpenBSD installs with PXE](http://www.bsdnow.tv/tutorials/autoinstall)
