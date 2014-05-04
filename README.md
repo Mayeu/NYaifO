@@ -5,13 +5,16 @@ console free installation of OpenBSD.
 
 #YES no code, but you do not need code or patch for this!
 
+This README come from a [blog
+post](http://6x9.fr/posts/openbsd-install-hand-and-console-free)
+
 ##Warning
 
 It is the first time I mess with `/usr/src`, and play with compiling my own
 image of OpenBSD. So everything may{be| feel} hackish {and|or} dirty.
 Constructive criticism more than welcome.
 
-I do not cover cross compiling here, and I only test this with the amd64
+I do not cover cross compilation here, and I only test this with the amd64
 distrib. But I do not see any reason that may prevent this to work on other
 distrib.
 
@@ -22,18 +25,18 @@ It is a guide (and maybe in a near future, a series of patches) to create a
 the server to automatically install OpenBSD 5.5 on it. Without the need to have
 access to a console on the machine.
 
-The short term goal here is to have an quick & dirty way to install OpenBSD
-when you can not access the console output of the machine.
+The short term goal here is to have a quick & dirty way to install OpenBSD when
+you can not access the console output of the machine.
 
 The long term may be to create a specifically tailored installer for this. See
-that has a *really long term* objective.
+that has a **really long term** objective.
 
 I would love to have feedback on this, since I am not really an OpenBSD hacker
 :)
 
 ##What do you need
 
-  * A working OpenBSD 5.5 system (VM is okay, I use one in Virtualbox)
+  * A working OpenBSD 5.5 system (VM is okay, I used a Virtualbox VM for this)
   * The `comp.tar.gz` set installed
   * The source tree in `/usr/src/` (`src.tar.gz` & `sys.tar.gz` from your
     favorite ftp)
@@ -42,7 +45,7 @@ I would love to have feedback on this, since I am not really an OpenBSD hacker
 
   * Basic install of OpenBSD booting directly from your hard-drive
 
-##Enhancement to do (non exhaustive list)
+##Enhancement (non exhaustive list)
 
   * A way to partition the disk using a definition file. Currently this use the
     default scheme, which may no fit your server need.
@@ -71,7 +74,7 @@ Location of sets = http
 Server = ftp.ch.openbsd.org
 ```
 
-*Avoid putting the root password in clear!* You can use encrypt(1) to generate
+**Avoid putting the root password in clear!** You can use encrypt(1) to generate
 an encrypted version of your password:
 
 ```
@@ -81,15 +84,15 @@ $2a$08$ZOm7pTQh4R8veZ7NbMn9Nuw14o4.eTTbabtGZWo5x8COwg5FblD3W
 ^C
 ```
 
-If you look in autoinstall(8) you will see that the `install.conf` file is just
-`question = answer`. You are not forced to put the whole question, just a
-non-ambiguous part (and no question mark).
+If you look at the man page of autoinstall(8) you will see that the
+`install.conf` file is just `question = answer`. You are not forced to put the
+whole question, just a non-ambiguous part (and no question mark).
 
-When configuring the disk, OpenBSD will only used an existing OpenBSD area if
-one exist by default. Because the `miniroot55.fs` will be dd(1)'ed on the
-target hard drive, an OpenBSD area will exist, but will only have a size of
-~3.5MB. So we have to add the `Use (W)hole disk, use the = W` question in the
-answer file. Otherwise the system will not use the whole disk.
+When configuring the disk, OpenBSD will use an existing OpenBSD area by default
+when one exist. Because the `miniroot55.fs` will be dd(1)'ed on the target hard
+drive, an OpenBSD area will exist, but will only have a size of ~3.5MB. So we
+have to add the `Use (W)hole disk, use the = W` question in the answer file.
+Otherwise the system will not use the whole disk.
 
 ###Add it to the files tree
 
@@ -105,8 +108,8 @@ This will add our `install.conf` file in the root of the miniroot image.
 ###Modify the installation question
 
 Since we do not boot with netboot, the installation will not start
-automatically. So we are going to force the script to start in autoinstall
-mode.
+automatically after a timeout. So we are going to force the script to start in
+autoinstall mode.
 
 The `(I)nstall, (U)pgrade, (A)utoinstall or (S)hell?` interactive question is
 in `/usr/src/miniroot/dot.profile`. Between the lines 92 and 123.
@@ -130,8 +133,8 @@ I just removed the whole part, and replaced it with:
 /install -a -f /install.conf
 ```
 
-So as soon as the machine will have booted, it will launch the install script
-in autoinstall mode (`-a`) with our specific answer file (`-f install.conf`).
+So as soon as the machine will be booted, it will launch the install script in
+autoinstall mode (`-a`) with our specific answer file (`-f install.conf`).
 
 ###Automatically reboot at the end of the installation
 
@@ -175,16 +178,18 @@ the image with:
 ```
 
 Take some time for you now, go make some tea, meditate. Obviously the times
-taken by those steps will depends of the power of your machine.
+taken by those steps will depend of the power of your machine.
 
 When the compilation end, you will find the `miniroot55.fs` file in your
 `/usr/src/<your_distrib>/ramdisk_cd/obj/miniroot55.fs`.
 
 ###Copy the miniroot & reboot your machine.
 
-Now that you have your miniroot you will have to dd(1) it on the target
-hardware. This step will greatly varies depending of your hoster. The basic
-step are:
+Now that you have your miniroot you have to dd(1) it on the target hardware.
+This step will greatly varies depending of your hoster and or the machine
+itself.
+
+If your server is hosted, the basic step are:
 
   * Make your image available from the network somewhere
   * Boot your server in rescue mode
