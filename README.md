@@ -14,7 +14,7 @@ It is the first time I mess with `/usr/src`, and play with compiling my own
 image of OpenBSD. So everything may{be| feel} hackish {and|or} dirty.
 Constructive criticism more than welcome.
 
-I do not cover cross compilation here, and I only test this with the amd64
+I do not cover cross compilation here, and I only did test this with the amd64
 distrib. But I do not see any reason that may prevent this to work on other
 distrib.
 
@@ -84,12 +84,12 @@ $2a$08$ZOm7pTQh4R8veZ7NbMn9Nuw14o4.eTTbabtGZWo5x8COwg5FblD3W
 ^C
 ```
 
-If you look at the man page of autoinstall(8) you will see that the
-`install.conf` file is just `question = answer`. You are not forced to put the
-whole question, just a non-ambiguous part (and no question mark).
+If you look at the man page of autoinstall you will see that the `install.conf`
+file use a `question = answer` format. You are not forced to put the whole
+question, just a non-ambiguous part (and no question mark).
 
 When configuring the disk, OpenBSD will use an existing OpenBSD area by default
-when one exist. Because the `miniroot55.fs` will be dd(1)'ed on the target hard
+when one exist. Because the `miniroot55.fs` will be dd'ed on the target hard
 drive, an OpenBSD area will exist, but will only have a size of ~3.5MB. So we
 have to add the `Use (W)hole disk, use the = W` question in the answer file.
 Otherwise the system will not use the whole disk.
@@ -138,8 +138,8 @@ autoinstall mode (`-a`) with our specific answer file (`-f install.conf`).
 
 ###Automatically reboot at the end of the installation
 
-Since we will not have any console, we have to force the reboot of the machine
-at the end of the installation. To do this, we need to modify the file
+Since we will not have acces to any console, we have to force the reboot of the
+machine at the end of the installation. To do this, we need to modify the file
 `/usr/src/distrib/miniroot/install.sub` where we will find the `finish_up()`
 function. Go to the end (line 2167), and add the reboot(8) command.
 
@@ -185,21 +185,20 @@ When the compilation end, you will find the `miniroot55.fs` file in your
 
 ###Copy the miniroot & reboot your machine.
 
-Now that you have your miniroot you have to dd(1) it on the target hardware.
-This step will greatly varies depending of your hoster and or the machine
-itself.
+Now that you have your miniroot you have to dd it on the target hardware. This
+step will varies greatly depending of your hoster and or the machine itself.
 
 If your server is hosted, the basic step are:
 
-  * Make your image available from the network somewhere
+  * Make your image available from somewhere over the network
   * Boot your server in rescue mode
-  * Download your image, and dd(1) it. Most of the time (on linux):
-    `dd if=miniroot55.fs of=/dev/sda`
+  * Download your image, and dd it. Most of the time (on linux): `dd
+    if=miniroot55.fs of=/dev/sda`
   * Reboot your server
 
 When the machine will reboot, it will boot in your miniroot images, launching
 the installation. This may take time, so do not stress and continue to drink
-you tea. At the end of the installation the machine will reboot, and you will
+your tea. At the end of the installation the machine will reboot, and you will
 have access to your ssh again ! (hopefully)
 
 ###Done
@@ -218,8 +217,8 @@ found this easy enough to set up :)
 ##Contributing
 
 I would love to have feedback on this, and learn new things about OpenBSD, do
-not hesitate to do constructive criticism. I am pretty sure this whole things
-is far from perfect!
+not hesitate to send me constructive criticism. I am pretty sure this whole
+things is far from perfect!
 
 ##Contact
 
