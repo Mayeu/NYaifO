@@ -12,7 +12,8 @@ P!=pwd
 TOP=${P}/..
 
 REV=            55
-RAMDISK=        RAMDISK_CD
+RAMDISK=        RAMDISK_NYAIFO
+XNAME=          nyaifo
 IMAGE=          mr.fs
 CBIN?=          instbin
 CRUNCHCONF?=    ${CBIN}.conf
@@ -22,8 +23,7 @@ UTILS?=         ${SRCDIR}/distrib/miniroot
 MOUNT_POINT=    /mnt
 MTREE=          ${UTILS}/mtree.conf
 
-XNAME?=         floppy
-FS?=            ${XNAME}${REV}.fs
+FS?=            ${XNAME}.fs
 VND?=           vnd0
 VND_DEV=        /dev/${VND}a
 VND_RDEV=       /dev/r${VND}a
@@ -31,19 +31,20 @@ VND_CRDEV=      /dev/r${VND}c
 PID!=           echo $$$$
 REALIMAGE!=     echo /var/tmp/image.${PID}
 BOOT?=          ${DESTDIR}/usr/mdec/boot
-FLOPPYSIZE?=    98304
-FLOPPYTYPE?=    floppy3
+
+OBJCOPY=	objcopy -Sg -R .comment
+IMAGESIZE=      16384
+RDSIZE=		8192
+NEWFSARGS=      -m 0 -o space -i 8192
 
 all:    ${FS}
 
 ${FS}:  bsd.gz
-	dd if=/dev/zero of=${REALIMAGE} bs=512 count=${FLOPPYSIZE}
+	dd if=/dev/zero of=${REALIMAGE} bs=512 count=${IMAGESIZE}
 	vnconfig -v -c ${VND} ${REALIMAGE}
-	.ifdef LBA
-	fdisk -yi -l ${FLOPPYSIZE} -f ${DESTDIR}/usr/mdec/mbr ${VND}
-	.endif
-	disklabel -w ${VND} ${FLOPPYTYPE}
-	newfs -m 0 -o space -i 524288 -c ${FLOPPYSIZE} ${VND_RDEV}
+	fdisk -yi ${VND}
+	printf "a a\n\n\n\nw\nq\n" | disklabel -E ${VND} > /dev/null 2>&1
+	newfs ${NEWFSARGS} -c ${IMAGESIZE} ${VND_RDEV}
 	mount ${VND_DEV} ${MOUNT_POINT}
 	cp ${BOOT} ${.OBJDIR}/boot
 	strip ${.OBJDIR}/boot
@@ -59,14 +60,8 @@ ${FS}:  bsd.gz
 	cp ${REALIMAGE} ${FS}
 	rm ${REALIMAGE}
 
-DISKTYPE?=       rdroot
-NBLKS?=          196608
-
-# minfree, opt, b/i  trks, sects, cpg
-NEWFSARGS= -m 0 -o space -i 8192
-
 bsd.gz: bsd.rd
-	cp bsd.rd bsd.strip
+	${OBJCOPY} bsd.rd bsd.strip
 	strip bsd.strip
 	strip -R .comment bsd.strip
 	gzip -c9n bsd.strip > bsd.gz
@@ -76,17 +71,23 @@ bsd.rd: ${IMAGE} bsd rdsetroot
 	${.OBJDIR}/rdsetroot bsd.rd ${IMAGE}
 
 bsd:
-	cd ${SRCDIR}/sys/arch/amd64/conf && config ${RAMDISK}
-	cd ${SRCDIR}/sys/arch/amd64/compile/${RAMDISK} && \
-		${MAKE} clean && COPTS=-Os exec ${MAKE}
-	cp ${SRCDIR}/sys/arch/amd64/compile/${RAMDISK}/bsd bsd
+	#cd ${SRCDIR}/sys/arch/amd64 && config ${RAMDISK}
+	#cd ${SRCDIR}/sys/arch/amd64/compile/${RAMDISK} && \
+	#	${MAKE} clean && COPTS=-Os exec ${MAKE}
+	#cp ${SRCDIR}/sys/arch/amd64/compile/${RAMDISK}/bsd bsd
+	mkdir -p ${.OBJDIR}/kernel
+	config -b ${.OBJDIR}/kernel -s ${SRCDIR}/sys ${.CURDIR}/amd64/${RAMDISK}
+	cd ${.OBJDIR}/kernel && \
+		make clean && make depend && COPTS=-Os make
+	cp ${.OBJDIR}/kernel/bsd bsd
 
 ${IMAGE}: ${CBIN} rd_setup do_files rd_teardown
 
 rd_setup: ${CBIN}
-	dd if=/dev/zero of=${REALIMAGE} bs=512 count=${NBLKS}
+	dd if=/dev/zero of=${REALIMAGE} bs=512 count=${RDSIZE}
 	vnconfig -v -c ${VND} ${REALIMAGE}
-	disklabel -w ${VND} ${DISKTYPE}
+	fdisk -iy ${VND_CRDEV}
+	printf "a a\n\n\n\nw\nq\n" | disklabel -E ${VND} > /dev/null 2>&1
 	newfs ${NEWFSARGS} ${VND_RDEV}
 	fsck ${VND_RDEV}
 	mount ${VND_DEV} ${MOUNT_POINT}
@@ -117,7 +118,7 @@ install:
 	.ifndef NOFS
 	cp ${FS} ${RELEASEDIR}/${FS}
 	.endif
-	.endif  # RELEASEDIR
+.endif  # RELEASEDIR
 
 ${CBIN}.mk ${CBIN}.cache ${CBIN}.c: ${CRUNCHCONF}
 	crunchgen -E -D ${BSDSRCDIR} -L ${DESTDIR}/usr/lib \
