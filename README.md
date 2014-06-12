@@ -8,6 +8,13 @@ console free installation of OpenBSD.
 This README come from a [blog
 post](http://6x9.fr/posts/openbsd-install-hand-and-console-free)
 
+#Wait, there is some now!
+
+Start adding a makefile to make things simpler. Currently it only generate a
+normal OpenBSD ramdisk, no auto-install yet.
+
+This makefile is clearly influence by the one of YaifO.
+
 ##Warning
 
 It is the first time I mess with `/usr/src`, and play with compiling my own
